@@ -1,6 +1,6 @@
 from django.db.models import Max, Min, Sum
 from django.http import HttpResponseRedirect
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -75,3 +75,7 @@ class AddToCartView(CartMixin, APIView):
         recalc_cart(self.cart)
         return HttpResponseRedirect('/')
 
+
+class OrderApiView(CreateAPIView):
+    model = Order
+    serializer_class = OrderSerializer

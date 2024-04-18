@@ -124,4 +124,35 @@ class Cart(models.Model):
 
 
 class Order(models.Model):
-    pass
+    STATUS_NEW = 'new'
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_READY = 'is_ready'
+    STATUS_COMPLETED = 'completed'
+
+    STATUS_CHOICES = (
+        (STATUS_NEW, 'Новый заказ'),
+        (STATUS_IN_PROGRESS, 'Заказ в обработке'),
+        (STATUS_READY, 'Заказ готов'),
+        (STATUS_COMPLETED, 'Заказ выполнен')
+    )
+
+    customer = models.ForeignKey(Customer,
+                                 related_name='related_orders',
+                                 on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=20)
+    address = models.CharField(max_length=1024, null=True, blank=True)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, null=True, blank=True)
+    status = models.CharField(
+        max_length=100,
+        verbose_name='Статус заказа',
+        choices=STATUS_CHOICES,
+        default=STATUS_NEW
+    )
+
+    comment = models.TextField(verbose_name='Комментарий к заказу', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now=True, verbose_name='Дата создания заказа')
+
+    def __str__(self):
+        return str(self.id)

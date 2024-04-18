@@ -35,6 +35,7 @@ urlpatterns = [
     path('category/<slug:category_slug>/', ProductsByCategoryViewSet.as_view()),
     path('cart/', CartView.as_view()),
     path('add-to-cart/<str:slug>/', AddToCartView.as_view()),
+    path('create-order/', OrderApiView.as_view()),
 
 
 ]
