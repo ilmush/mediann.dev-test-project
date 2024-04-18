@@ -23,3 +23,20 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ('id', 'name', 'slug', 'price', 'discounted_price', 'remaining_product', 'specifications', 'category')
 
+
+class CartProductSerializer(serializers.ModelSerializer):
+    product = serializers.StringRelatedField()
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = CartProduct
+        fields = ('qty', 'user', 'product', )
+
+
+class CartSerializer(serializers.ModelSerializer):
+    owner = serializers.StringRelatedField()
+    products = CartProductSerializer(many=True)
+
+    class Meta:
+        model = Cart
+        fields = '__all__'

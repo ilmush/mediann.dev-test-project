@@ -1,11 +1,14 @@
 from django.db.models import Max, Min, Sum
+from django.http import HttpResponseRedirect
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from .mixins import CartMixin
 from .serializers import *
+from .utils import recalc_cart
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -38,7 +41,6 @@ class ProductsByCategoryViewSet(ListAPIView):
 
     def list(self, request, *args, **kwargs):
         category = Category.objects.get(slug=self.kwargs['category_slug'])
-
         products_category = Product.objects.filter(category=category)
         subcategories = category.subcategory.all()
 
@@ -49,3 +51,27 @@ class ProductsByCategoryViewSet(ListAPIView):
         serializer = ProductSerializer(products_category, many=True)
 
         return Response(serializer.data)
+
+
+class CartView(CartMixin, APIView):
+    def get(self, request, *args, **kwargs):
+        customer = Customer.objects.get(user=request.user)
+        cart = Cart.objects.get(owner=customer)
+
+        serializer = CartSerializer(cart)
+
+        return Response(serializer.data)
+
+
+class AddToCartView(CartMixin, APIView):
+    def get(self, request, *args, **kwargs):
+        product_slug = kwargs.get('slug')
+        product = Product.objects.get(slug=product_slug)
+        cart_product, created = CartProduct.objects.get_or_create(
+            user=self.cart.owner, cart=self.cart, product=product, final_price=product.price
+        )
+        if created:
+            self.cart.products.add(cart_product)
+        recalc_cart(self.cart)
+        return HttpResponseRedirect('/')
+

@@ -14,3 +14,4 @@ class ProductAdmin(admin.ModelAdmin):
 
 admin.site.register(Customer)
 admin.site.register(Specification)
+admin.site.register(Cart)

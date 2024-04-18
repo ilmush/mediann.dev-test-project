@@ -33,6 +33,9 @@ router.register(r'product', ProductViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('category/<slug:category_slug>/', ProductsByCategoryViewSet.as_view()),
+    path('cart/', CartView.as_view()),
+    path('add-to-cart/<str:slug>/', AddToCartView.as_view()),
+
 
 ]
 
