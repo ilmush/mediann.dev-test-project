@@ -22,19 +22,17 @@ from django.conf.urls.static import static
 from rest_framework.routers import SimpleRouter
 
 from .yasg import urlpatterns as doc_urls
-from shop.shop.views import *
+from shop.views import *
+
+# from ..shop.views import ProductViewSet
 
 router = SimpleRouter()
 
 router.register(r'product', ProductViewSet)
-router.register(r'category', CategoryViewSet)
-router.register(r'cart', CartViewSet)
-router.register(r'customer', CustomerViewSet)
-router.register(r'specification', SpecificationViewSet)
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('category/<slug:category_slug>/', ProductsByCategoryViewSet.as_view()),
 
 ]
 

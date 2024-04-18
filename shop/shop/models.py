@@ -9,7 +9,8 @@ class Category(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255,
                             unique=True)
-    subcategory = models.ManyToManyField('Subcategory',
+    subcategory = models.ManyToManyField('self',
+                                         symmetrical=False,
                                          null=True,
                                          blank=True)
 
@@ -25,28 +26,14 @@ class Category(models.Model):
         return self.name
 
 
-class Subcategory(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название подкатегории')
-    slug = models.SlugField(unique=True)
-
-    class Meta:
-        ordering = ['name']
-        indexes = [
-            models.Index(fields=['name']),
-        ]
-        verbose_name = 'subcategory'
-        verbose_name_plural = 'subcategories'
-
-    def __str__(self):
-        return self.name
-
-
 class Product(models.Model):
     slug = models.SlugField(max_length=200,
                             unique=True)
     name = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    discounted_price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10,
+                                decimal_places=2)
+    discounted_price = models.DecimalField(max_digits=10,
+                                           decimal_places=2)
     remaining_product = models.IntegerField()
     specifications = models.ManyToManyField('Specification',
                                             related_name='related_specification')
@@ -67,20 +54,20 @@ class Product(models.Model):
         return self.name
 
 
-class CartProduct(models.Model):
-    user = models.ForeignKey('Customer',
-                             on_delete=models.CASCADE)
-    cart = models.ForeignKey('Cart',
-                             on_delete=models.CASCADE,
-                             related_name='related_products')
-    product = models.ForeignKey('Product',
-                                on_delete=models.CASCADE)
-    qty = models.PositiveIntegerField(default=1)
-    final_price = models.DecimalField(max_digits=10,
-                                      decimal_places=2)
-
-    def __str__(self):
-        return "Продукт {} (для корзины)".format(self.product.title)
+# class CartProduct(models.Model):
+#     user = models.ForeignKey('Customer',
+#                              on_delete=models.CASCADE)
+#     cart = models.ForeignKey('Cart',
+#                              on_delete=models.CASCADE,
+#                              related_name='related_products')
+#     product = models.ForeignKey('Product',
+#                                 on_delete=models.CASCADE)
+#     qty = models.PositiveIntegerField(default=1)
+#     final_price = models.DecimalField(max_digits=10,
+#                                       decimal_places=2)
+#
+#     def __str__(self):
+#         return "Продукт {} (для корзины)".format(self.product.title)
 
 
 class Cart(models.Model):
@@ -124,7 +111,7 @@ class Specification(models.Model):
     value = models.CharField(max_length=255)
 
     def __str__(self):
-        return f"{self.title}: {self.value}"
+        return f"{self.name}: {self.value}"
 
 
 class Order(models.Model):
