@@ -9,10 +9,11 @@ class Category(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255,
                             unique=True)
-    subcategory = models.ManyToManyField('self',
-                                         symmetrical=False,
-                                         null=True,
-                                         blank=True)
+    parent_category = models.ForeignKey('self',
+                                        on_delete=models.CASCADE,
+                                        null=True,
+                                        blank=True)
+    objects: managers
 
     class Meta:
         ordering = ['name']
@@ -27,13 +28,15 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=200,
                             unique=True)
-    name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10,
                                 decimal_places=2)
     discounted_price = models.DecimalField(max_digits=10,
-                                           decimal_places=2)
+                                           decimal_places=2,
+                                           null=True,
+                                           blank=True)
     remaining_product = models.IntegerField()
     specifications = models.ManyToManyField('Specification',
                                             related_name='related_specification')
@@ -63,10 +66,8 @@ class Customer(models.Model):
     address = models.CharField(max_length=255,
                                null=True,
                                blank=True)
-    orders = models.ManyToManyField('Order',
-                                    related_name='related_customer',
-                                    null=True,
-                                    blank=True)
+
+    objects: managers
 
     class Meta:
         ordering = ['user']
@@ -78,6 +79,8 @@ class Customer(models.Model):
 class Specification(models.Model):
     name = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
+
+    objects: managers
 
     class Meta:
         ordering = ['name']
@@ -101,6 +104,8 @@ class CartProduct(models.Model):
     final_price = models.DecimalField(max_digits=10,
                                       decimal_places=2)
 
+    objects: managers
+
     def __str__(self):
         return f"Продукт {self.product.title} (для корзины)"
 
@@ -119,40 +124,8 @@ class Cart(models.Model):
     in_order = models.BooleanField(default=False)
     for_anonymous_user = models.BooleanField(default=False)
 
-    def __str__(self):
-        return str(self.id)
-
-
-class Order(models.Model):
-    STATUS_NEW = 'new'
-    STATUS_IN_PROGRESS = 'in_progress'
-    STATUS_READY = 'is_ready'
-    STATUS_COMPLETED = 'completed'
-
-    STATUS_CHOICES = (
-        (STATUS_NEW, 'Новый заказ'),
-        (STATUS_IN_PROGRESS, 'Заказ в обработке'),
-        (STATUS_READY, 'Заказ готов'),
-        (STATUS_COMPLETED, 'Заказ выполнен')
-    )
-
-    customer = models.ForeignKey(Customer,
-                                 related_name='related_orders',
-                                 on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    phone = models.CharField(max_length=20)
-    address = models.CharField(max_length=1024, null=True, blank=True)
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, null=True, blank=True)
-    status = models.CharField(
-        max_length=100,
-        verbose_name='Статус заказа',
-        choices=STATUS_CHOICES,
-        default=STATUS_NEW
-    )
-
-    comment = models.TextField(verbose_name='Комментарий к заказу', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now=True, verbose_name='Дата создания заказа')
+    objects: managers
 
     def __str__(self):
         return str(self.id)
+

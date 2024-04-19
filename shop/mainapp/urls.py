@@ -24,7 +24,6 @@ from rest_framework.routers import SimpleRouter
 from .yasg import urlpatterns as doc_urls
 from shop.views import *
 
-from rest_framework.authtoken import views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -34,13 +33,13 @@ from rest_framework_simplejwt.views import (
 router = SimpleRouter()
 
 router.register(r'product', ProductViewSet)
+router.register(r'cart', CartView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('category/<slug:category_slug>/', ProductsByCategoryViewSet.as_view()),
-    path('cart/', CartView.as_view()),
+    path('make-order/<int:id>/', MakeOrderApiView.as_view()),
+    path('category/<slug:category_slug>/', ProductsByCategoryViewSet.as_view(), name='product_by_category'),
     path('add-to-cart/<str:slug>/', AddToCartView.as_view()),
-    path('create-order/', OrderApiView.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
@@ -50,7 +49,3 @@ urlpatterns = [
 urlpatterns += router.urls
 urlpatterns += doc_urls
 
-
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

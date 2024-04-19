@@ -1,14 +1,18 @@
 from django.db.models import Max, Min, Sum
 from django.http import HttpResponseRedirect
+from django.core.mail import send_mail
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.utils import json
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from .mixins import CartMixin
 from .serializers import *
 from .utils import recalc_cart
+
+import requests
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -42,7 +46,7 @@ class ProductsByCategoryViewSet(ListAPIView):
     def list(self, request, *args, **kwargs):
         category = Category.objects.get(slug=self.kwargs['category_slug'])
         products_category = Product.objects.filter(category=category)
-        subcategories = category.subcategory.all()
+        subcategories = Category.objects.filter(parent_category=category)
 
         for subcategory in subcategories:
             subcategory_products = Product.objects.filter(category=subcategory)
@@ -53,14 +57,9 @@ class ProductsByCategoryViewSet(ListAPIView):
         return Response(serializer.data)
 
 
-class CartView(CartMixin, APIView):
-    def get(self, request, *args, **kwargs):
-        customer = Customer.objects.get(user=request.user)
-        cart = Cart.objects.get(owner=customer)
-
-        serializer = CartSerializer(cart)
-
-        return Response(serializer.data)
+class CartView(CartMixin, ReadOnlyModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
 
 
 class AddToCartView(CartMixin, APIView):
@@ -76,6 +75,32 @@ class AddToCartView(CartMixin, APIView):
         return HttpResponseRedirect('/')
 
 
-class OrderApiView(CreateAPIView):
-    model = Order
-    serializer_class = OrderSerializer
+class MakeOrderApiView(APIView):
+    def get(self, request, *args, **kwargs):
+        url = 'http://test-payments.mediann-dev.ru/payment'
+        cart = Cart.objects.get(id=self.kwargs['id'])
+        user = cart.owner.user
+
+        data = {
+            "amount": str(cart.final_price),
+            "items_qty": str(cart.total_products),
+            "api_token": "jhgjebgy7w44bfgsfsjgjdgmjuiege",
+            "user_email": user.email
+        }
+        json_data = json.dumps(data)
+        response = requests.post(url, data=json_data)
+        json_data = response.json()
+
+        send_email(json_data)
+
+        return Response(json_data)
+
+
+def send_email(data):
+    recipient_email = 'django.shop@mail.ru'
+    subject = 'Payment Information'
+    message = f"Номер заказа: {data['orderId']}" \
+              f"\nСылка на оплату заказа {data['url']}"
+    sender_email = 'django.shop@mail.ru'
+
+    send_mail(subject, message, sender_email, [recipient_email])

@@ -7,7 +7,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'slug', 'subcategory')
+        fields = ('id', 'name', 'slug', 'parent_category')
 
 
 class SpecificationSerializer(serializers.ModelSerializer):
@@ -41,8 +41,3 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = '__all__'
 
-
-class OrderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = '__all__'
