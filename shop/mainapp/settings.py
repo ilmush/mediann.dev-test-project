@@ -195,3 +195,17 @@ EMAIL_USE_SSL = False
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
+
+
+LOGGING = {  # pragma: no cover
+    'version': 1,  # pragma: no cover
+    'handlers': {  # pragma: no cover
+        'console': {'class': 'logging.StreamHandler'}  # pragma: no cover
+    },  # pragma: no cover
+    'loggers': {  # pragma: no cover
+        'django.db.backends': {  # pragma: no cover
+            'handlers': ['console'],  # pragma: no cover
+            'level': 'DEBUG'  # pragma: no cover
+        }  # pragma: no cover
+    }  # pragma: no cover
+}  # pragma: no cover

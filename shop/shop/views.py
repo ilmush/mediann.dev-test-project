@@ -22,7 +22,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 class ProductViewSet(ReadOnlyModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().prefetch_related('specifications')
     serializer_class = ProductSerializer
     lookup_field = 'slug'
     pagination_class = StandardResultsSetPagination
@@ -41,7 +41,7 @@ class ProductViewSet(ReadOnlyModelViewSet):
 
 
 class ProductsByCategoryViewSet(ListAPIView):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().prefetch_related('specifications')
 
     def list(self, request, *args, **kwargs):
         category = Category.objects.get(slug=self.kwargs['category_slug'])
@@ -58,7 +58,7 @@ class ProductsByCategoryViewSet(ListAPIView):
 
 
 class CartView(CartMixin, ReadOnlyModelViewSet):
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.all().prefetch_related('products', 'owner')
     serializer_class = CartSerializer
 
 
@@ -91,13 +91,13 @@ class MakeOrderApiView(APIView):
         response = requests.post(url, data=json_data)
         json_data = response.json()
 
-        send_email(json_data)
+        send_email(json_data, user.email)
 
         return Response(json_data)
 
 
-def send_email(data):
-    recipient_email = 'django.shop@mail.ru'
+def send_email(data, email):
+    recipient_email = email
     subject = 'Payment Information'
     message = f"Номер заказа: {data['orderId']}" \
               f"\nСылка на оплату заказа {data['url']}"

@@ -107,7 +107,7 @@ class CartProduct(models.Model):
     objects: managers
 
     def __str__(self):
-        return f"Продукт {self.product.title} (для корзины)"
+        return f"Продукт {self.product.name} (для корзины)"
 
 
 class Cart(models.Model):
