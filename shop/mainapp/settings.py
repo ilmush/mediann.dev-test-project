@@ -143,6 +143,9 @@ REST_FRAMEWORK = {
 
 }
 
+PAYMENT_SERVICE_URL = 'http://test-payments.mediann-dev.ru/payment'
+PAYMENT_SERVICE_ACCESS_TOKEN = "jhgjebgy7w44bfgsfsjgjdgmjuiege"
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),

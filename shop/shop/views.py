@@ -8,6 +8,7 @@ from rest_framework.utils import json
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from mainapp import settings
 from .mixins import CartMixin
 from .serializers import *
 from .utils import recalc_cart
@@ -77,26 +78,29 @@ class AddToCartView(CartMixin, APIView):
 
 class MakeOrderApiView(APIView):
     def get(self, request, *args, **kwargs):
-        url = 'http://test-payments.mediann-dev.ru/payment'
+        url = settings.PAYMENT_SERVICE_URL
         cart = Cart.objects.get(id=self.kwargs['id'])
         user = cart.owner.user
 
         data = {
             "amount": str(cart.final_price),
             "items_qty": str(cart.total_products),
-            "api_token": "jhgjebgy7w44bfgsfsjgjdgmjuiege",
+            "api_token": settings.PAYMENT_SERVICE_ACCESS_TOKEN,
             "user_email": user.email
         }
         json_data = json.dumps(data)
         response = requests.post(url, data=json_data)
         json_data = response.json()
 
-        send_email(json_data, user.email)
+        send_order_info_mail(json_data, user.email)
 
         return Response(json_data)
 
 
-def send_email(data, email):
+def send_order_info_mail(data, email):
+    """
+    Функция отправки почтовых сообщений с информацией о заказе
+    """
     recipient_email = email
     subject = 'Payment Information'
     message = f"Номер заказа: {data['orderId']}" \

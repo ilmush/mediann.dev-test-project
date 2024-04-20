@@ -4,6 +4,9 @@ from .models import Customer, Cart
 
 
 class CartMixin(View):
+    """
+    Создание корзины покупок пользователей
+    """
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             customer = Customer.objects.filter(user=request.user).first()
@@ -20,3 +23,4 @@ class CartMixin(View):
                 cart = Cart.objects.create(for_anonymous_user=True)
         self.cart = cart
         return super().dispatch(request, *args, **kwargs)
+
