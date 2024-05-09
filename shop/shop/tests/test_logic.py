@@ -1,7 +1,6 @@
 from django.test import TestCase
-from django.db import models
 
-from shop.models import *
+from shop.models import User, Customer, Specification, Category, Product, Cart, CartProduct
 from shop.utils import recalc_cart
 
 

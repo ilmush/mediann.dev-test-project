@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from shop.serializers import *
+from shop.models import Category, Specification, Product, User, Customer, Cart, CartProduct
+from shop.serializers import CategorySerializer, SpecificationSerializer, ProductSerializer, CartProductSerializer
 
 
 class CategorySerializerTestCase(TestCase):

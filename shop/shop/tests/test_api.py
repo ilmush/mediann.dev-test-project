@@ -2,8 +2,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from shop.models import *
-from shop.serializers import *
+from shop.models import User, Customer, Specification, Category, Product, Cart, CartProduct
+from shop.serializers import ProductSerializer, CartSerializer
 
 
 class ProductApiTestCase(APITestCase):

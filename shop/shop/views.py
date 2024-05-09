@@ -1,7 +1,7 @@
 from django.db.models import Max, Min, Sum
 from django.http import HttpResponseRedirect
 from django.core.mail import send_mail
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.utils import json
@@ -10,7 +10,8 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from mainapp import settings
 from .mixins import CartMixin
-from .serializers import *
+from .serializers import ProductSerializer, CartSerializer
+from .models import Product, Category, Cart, CartProduct
 from .utils import recalc_cart
 
 import requests
