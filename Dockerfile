@@ -17,4 +17,5 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 
 RUN adduser --disabled-password shop-user
 
-USER shop-user
+COPY ./entrypoint.sh /
+ENTRYPOINT ["sh", "/entrypoint.sh"]

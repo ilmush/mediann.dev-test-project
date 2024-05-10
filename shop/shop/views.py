@@ -15,6 +15,7 @@ from .models import Product, Category, Cart, CartProduct
 from .utils import recalc_cart
 
 import requests
+from typing import Dict
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -98,7 +99,7 @@ class MakeOrderApiView(APIView):
         return Response(json_data)
 
 
-def send_order_info_mail(data, email):
+def send_order_info_mail(data: Dict[str, str], email: str):
     """
     Функция отправки почтовых сообщений с информацией о заказе
     """
