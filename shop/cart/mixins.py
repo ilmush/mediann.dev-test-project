@@ -1,6 +1,7 @@
 from django.views.generic import View
 
-from .models import Customer, Cart
+from cart.models import Cart
+from shop.models import Customer
 
 
 class CartMixin(View):
