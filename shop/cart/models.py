@@ -1,18 +1,23 @@
+from typing import Type
+
 from django.contrib.sites import managers
 from django.db import models
+from django.db.models import QuerySet
+
+from shop.models import Customer, Product
 
 
 class CartProduct(models.Model):
-    user = models.ForeignKey('Customer',
-                             on_delete=models.CASCADE)
-    cart = models.ForeignKey('Cart',
-                             on_delete=models.CASCADE,
-                             related_name='related_products')
-    product = models.ForeignKey('Product',
-                                on_delete=models.CASCADE)
-    qty = models.PositiveIntegerField(default=1)
-    final_price = models.DecimalField(max_digits=10,
-                                      decimal_places=2)
+    user: Type[Customer] = models.ForeignKey(Customer,
+                                             on_delete=models.CASCADE)
+    cart: Type['Cart'] = models.ForeignKey('Cart',
+                                           on_delete=models.CASCADE,
+                                           related_name='related_products')
+    product: Type[Product] = models.ForeignKey(Product,
+                                               on_delete=models.CASCADE)
+    qty: int = models.PositiveIntegerField(default=1)
+    final_price: int = models.DecimalField(max_digits=10,
+                                           decimal_places=2)
 
     objects: managers
 
@@ -21,18 +26,18 @@ class CartProduct(models.Model):
 
 
 class Cart(models.Model):
-    owner = models.ForeignKey('Customer',
-                              null=True,
-                              on_delete=models.CASCADE)
-    products = models.ManyToManyField(CartProduct,
-                                      blank=True,
-                                      related_name='related_cart')
-    total_products = models.PositiveIntegerField(default=0)
-    final_price = models.DecimalField(max_digits=10,
-                                      default=0,
-                                      decimal_places=2)
-    in_order = models.BooleanField(default=False)
-    for_anonymous_user = models.BooleanField(default=False)
+    owner: Type[Customer] = models.ForeignKey(Customer,
+                                              null=True,
+                                              on_delete=models.CASCADE)
+    products: QuerySet[CartProduct] = models.ManyToManyField(CartProduct,
+                                                             blank=True,
+                                                             related_name='related_cart')
+    total_products: int = models.PositiveIntegerField(default=0)
+    final_price: int = models.DecimalField(max_digits=10,
+                                           default=0,
+                                           decimal_places=2)
+    in_order: bool = models.BooleanField(default=False)
+    for_anonymous_user: bool = models.BooleanField(default=False)
 
     objects: managers
 

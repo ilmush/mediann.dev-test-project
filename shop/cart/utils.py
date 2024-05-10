@@ -1,7 +1,9 @@
 from django.db import models
 
+from cart.models import Cart
 
-def recalc_cart(cart):
+
+def recalc_cart(cart: Cart):
     """
     Функция пересчета суммы покупок в корзине
     """

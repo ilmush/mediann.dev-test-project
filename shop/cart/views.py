@@ -15,7 +15,7 @@ class CartView(CartMixin, ReadOnlyModelViewSet):
 
 
 class AddToCartView(CartMixin, APIView):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> Cart:
         product_slug = kwargs.get('slug')
         product = Product.objects.get(slug=product_slug)
         cart_product, created = CartProduct.objects.get_or_create(

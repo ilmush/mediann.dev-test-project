@@ -68,4 +68,3 @@ class ProductsByCategoryApiTestCase(APITestCase):
         response = self.client.get('/category/category_1/')
         serializer_data = ProductSerializer([self.product_1, self.product_2], many=True).data
         self.assertEqual(serializer_data, response.data)
-

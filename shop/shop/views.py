@@ -27,7 +27,7 @@ class ProductViewSet(ReadOnlyModelViewSet):
     lookup_field = 'slug'
     pagination_class = StandardResultsSetPagination
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> Response:
         queryset = self.filter_queryset(self.get_queryset())
         response = super().list(request, *args, **kwargs)
 
@@ -43,7 +43,7 @@ class ProductViewSet(ReadOnlyModelViewSet):
 class ProductsByCategoryViewSet(ListAPIView):
     queryset = Product.objects.all().prefetch_related('specifications')
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> Response:
         category = Category.objects.get(slug=self.kwargs['category_slug'])
         products_category = Product.objects.filter(category=category)
         subcategories = Category.objects.filter(parent_category=category)
@@ -58,7 +58,7 @@ class ProductsByCategoryViewSet(ListAPIView):
 
 
 class MakeOrderApiView(APIView):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> Response:
         url = settings.PAYMENT_SERVICE_URL
         cart = Cart.objects.get(id=self.kwargs['id'])
         user = cart.owner.user
