@@ -19,8 +19,9 @@ from django.urls import path
 
 from rest_framework.routers import SimpleRouter
 
+from cart.views import CartView, AddToCartView
 from .yasg import urlpatterns as doc_urls
-from shop.views import ProductViewSet, CartView, MakeOrderApiView, ProductsByCategoryViewSet, AddToCartView
+from shop.views import ProductViewSet, MakeOrderApiView, ProductsByCategoryViewSet
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
