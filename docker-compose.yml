@@ -2,21 +2,31 @@ services:
   web-app:
     build:
       context: .
-    ports:
-      - "8000:8000"
+
+    expose:
+      - 8000
     volumes:
-      - ./shop:/shop
+      - static:/static
     environment:
       - DB_HOST=database
       - DB_NAME=dbname
       - DB_USER=dbuser
       - DB_PASS=pass
 
-    command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - .env
 
     depends_on:
       - database
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - static:/static
+    ports:
+      - 1337:80
+    depends_on:
+      - web-app
 
   database:
     image: postgres:14.6-alpine
@@ -24,3 +34,6 @@ services:
       - POSTGRES_DB=dbname
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=pass
+
+volumes:
+  static:

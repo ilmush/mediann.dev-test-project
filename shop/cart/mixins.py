@@ -1,6 +1,7 @@
 from django.views.generic import View
 
-from .models import Customer, Cart
+from cart.models import Cart
+from shop.models import Customer
 
 
 class CartMixin(View):
@@ -23,4 +24,3 @@ class CartMixin(View):
                 cart = Cart.objects.create(for_anonymous_user=True)
         self.cart = cart
         return super().dispatch(request, *args, **kwargs)
-

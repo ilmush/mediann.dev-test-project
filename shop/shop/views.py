@@ -1,17 +1,16 @@
 from django.db.models import Max, Min, Sum
-from django.http import HttpResponseRedirect
-from django.core.mail import send_mail
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.utils import json
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from cart.models import Cart
 from mainapp import settings
-from .mixins import CartMixin
-from .serializers import *
-from .utils import recalc_cart
+from .emailUtils import send_order_info_mail
+from .serializers import ProductSerializer
+from .models import Product, Category
 
 import requests
 
@@ -28,7 +27,7 @@ class ProductViewSet(ReadOnlyModelViewSet):
     lookup_field = 'slug'
     pagination_class = StandardResultsSetPagination
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> Response:
         queryset = self.filter_queryset(self.get_queryset())
         response = super().list(request, *args, **kwargs)
 
@@ -44,7 +43,7 @@ class ProductViewSet(ReadOnlyModelViewSet):
 class ProductsByCategoryViewSet(ListAPIView):
     queryset = Product.objects.all().prefetch_related('specifications')
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> Response:
         category = Category.objects.get(slug=self.kwargs['category_slug'])
         products_category = Product.objects.filter(category=category)
         subcategories = Category.objects.filter(parent_category=category)
@@ -58,26 +57,8 @@ class ProductsByCategoryViewSet(ListAPIView):
         return Response(serializer.data)
 
 
-class CartView(CartMixin, ReadOnlyModelViewSet):
-    queryset = Cart.objects.all().prefetch_related('products', 'owner')
-    serializer_class = CartSerializer
-
-
-class AddToCartView(CartMixin, APIView):
-    def get(self, request, *args, **kwargs):
-        product_slug = kwargs.get('slug')
-        product = Product.objects.get(slug=product_slug)
-        cart_product, created = CartProduct.objects.get_or_create(
-            user=self.cart.owner, cart=self.cart, product=product, final_price=product.price
-        )
-        if created:
-            self.cart.products.add(cart_product)
-        recalc_cart(self.cart)
-        return HttpResponseRedirect('/')
-
-
 class MakeOrderApiView(APIView):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> Response:
         url = settings.PAYMENT_SERVICE_URL
         cart = Cart.objects.get(id=self.kwargs['id'])
         user = cart.owner.user
@@ -95,16 +76,3 @@ class MakeOrderApiView(APIView):
         send_order_info_mail(json_data, user.email)
 
         return Response(json_data)
-
-
-def send_order_info_mail(data, email):
-    """
-    Функция отправки почтовых сообщений с информацией о заказе
-    """
-    recipient_email = email
-    subject = 'Payment Information'
-    message = f"Номер заказа: {data['orderId']}" \
-              f"\nСылка на оплату заказа {data['url']}"
-    sender_email = 'django.shop@mail.ru'
-
-    send_mail(subject, message, sender_email, [recipient_email])
