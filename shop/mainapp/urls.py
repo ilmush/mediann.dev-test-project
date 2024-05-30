@@ -19,9 +19,9 @@ from django.urls import path
 
 from rest_framework.routers import SimpleRouter
 
-from cart.views import CartView, AddToCartView
+from cart.views import CartViewSet, AddToCartView
 from .yasg import urlpatterns as doc_urls
-from shop.views import ProductViewSet, MakeOrderApiView, ProductsByCategoryViewSet
+from shop.views import ProductViewSet, MakeOrderApiView, ProductsByCategoryListAPIView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -32,12 +32,12 @@ from rest_framework_simplejwt.views import (
 router = SimpleRouter()
 
 router.register(r'product', ProductViewSet)
-router.register(r'cart', CartView)
+router.register(r'cart', CartViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('make-order/<int:id>/', MakeOrderApiView.as_view()),
-    path('category/<slug:category_slug>/', ProductsByCategoryViewSet.as_view(), name='product_by_category'),
+    path('category/<slug:category_slug>/', ProductsByCategoryListAPIView.as_view(), name='product_by_category'),
     path('add-to-cart/<str:slug>/', AddToCartView.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
