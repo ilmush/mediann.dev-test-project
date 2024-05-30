@@ -24,14 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = 'django-insecure-6rwt4srs)x=tzq$_5yd^%c)2tkqk%u91*9myeb%1=(0sym6!*5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
-# ALLOWED_HOSTS = []
 
 SECRET_KEY = os.getenv('SECRET_KEY')
-
 DEBUG = os.getenv('DEBUG')
-
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -47,6 +42,7 @@ INSTALLED_APPS = [
     'drf_yasg',
 
     'shop',
+    'cart',
 
 ]
 
@@ -209,15 +205,15 @@ SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
 
 
-# LOGGING = {  # pragma: no cover
-#     'version': 1,  # pragma: no cover
-#     'handlers': {  # pragma: no cover
-#         'console': {'class': 'logging.StreamHandler'}  # pragma: no cover
-#     },  # pragma: no cover
-#     'loggers': {  # pragma: no cover
-#         'django.db.backends': {  # pragma: no cover
-#             'handlers': ['console'],  # pragma: no cover
-#             'level': 'DEBUG'  # pragma: no cover
-#         }  # pragma: no cover
-#     }  # pragma: no cover
-# }  # pragma: no cover
+LOGGING = {  # pragma: no cover
+    'version': 1,  # pragma: no cover
+    'handlers': {  # pragma: no cover
+        'console': {'class': 'logging.StreamHandler'}  # pragma: no cover
+    },  # pragma: no cover
+    'loggers': {  # pragma: no cover
+        'django.db.backends': {  # pragma: no cover
+            'handlers': ['console'],  # pragma: no cover
+            'level': 'DEBUG'  # pragma: no cover
+        }  # pragma: no cover
+    }  # pragma: no cover
+}  # pragma: no cover

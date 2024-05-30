@@ -33,6 +33,10 @@ class ProductApiTestCase(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data['result']['results'])
 
+    def test_error_404(self):
+        response = self.client.get(reverse('product-detail', kwargs={'slug': 'nonexistent_page'}))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+
 
 class ProductsByCategoryApiTestCase(APITestCase):
     def setUp(self):
@@ -68,3 +72,7 @@ class ProductsByCategoryApiTestCase(APITestCase):
         response = self.client.get('/category/category_1/')
         serializer_data = ProductSerializer([self.product_1, self.product_2], many=True).data
         self.assertEqual(serializer_data, response.data)
+
+    def test_error_500(self):
+        response = self.client.get('/category/nonexistent_category/')
+        self.assertEqual(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)

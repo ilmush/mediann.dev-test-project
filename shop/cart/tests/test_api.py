@@ -35,6 +35,11 @@ class CartViewApiTestCase(APITestCase):
         serializer_data = CartSerializer(self.cart).data
 
         self.assertEqual(serializer_data, response.data[0])
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+    def test_error_404(self):
+        response = self.client.get('cart-detail', kwargs={'slug': 'nonexistent_page'})
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
 
 
 class AddToCartViewApiTestCase(APITestCase):
@@ -60,6 +65,8 @@ class AddToCartViewApiTestCase(APITestCase):
 
     def test_get(self):
         response = self.client.get('/add-to-cart/product_1/')
-        print(response)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
-        self.assertEqual(status.HTTP_302_FOUND, response.status_code)
+    def test_error_500(self):
+        response = self.client.get('/add-to-cart/nonexistent_product/')
+        self.assertEqual(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)

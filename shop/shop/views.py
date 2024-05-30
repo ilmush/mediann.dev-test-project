@@ -1,4 +1,5 @@
 from django.db.models import Max, Min, Sum
+from rest_framework.exceptions import APIException
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -40,39 +41,50 @@ class ProductViewSet(ReadOnlyModelViewSet):
         return response
 
 
-class ProductsByCategoryViewSet(ListAPIView):
+class ProductsByCategoryListAPIView(ListAPIView):
     queryset = Product.objects.all().prefetch_related('specifications')
 
     def list(self, request, *args, **kwargs) -> Response:
-        category = Category.objects.get(slug=self.kwargs['category_slug'])
-        products_category = Product.objects.filter(category=category)
-        subcategories = Category.objects.filter(parent_category=category)
+        try:
+            category = Category.objects.get(slug=self.kwargs['category_slug'])
+            products_category = Product.objects.filter(category=category)
+            subcategories = Category.objects.filter(parent_category=category)
 
-        for subcategory in subcategories:
-            subcategory_products = Product.objects.filter(category=subcategory)
-            products_category = products_category | subcategory_products
+            for subcategory in subcategories:
+                subcategory_products = Product.objects.filter(category=subcategory)
+                products_category = products_category | subcategory_products
 
-        serializer = ProductSerializer(products_category, many=True)
+            serializer = ProductSerializer(products_category, many=True)
 
-        return Response(serializer.data)
+            return Response(serializer.data)
+        except Category.DoesNotExist:
+            raise APIException('Category not found.', code='not_found')
+        except Product.DoesNotExist:
+            raise APIException('Error retrieving products for the category.', code='product_error')
 
 
 class MakeOrderApiView(APIView):
     def get(self, request, *args, **kwargs) -> Response:
-        url = settings.PAYMENT_SERVICE_URL
-        cart = Cart.objects.get(id=self.kwargs['id'])
-        user = cart.owner.user
+        try:
+            url = settings.PAYMENT_SERVICE_URL
+            cart = Cart.objects.get(id=self.kwargs['id'])
+            user = cart.owner.user
 
-        data = {
-            "amount": str(cart.final_price),
-            "items_qty": str(cart.total_products),
-            "api_token": settings.PAYMENT_SERVICE_ACCESS_TOKEN,
-            "user_email": user.email
-        }
-        json_data = json.dumps(data)
-        response = requests.post(url, data=json_data)
-        json_data = response.json()
+            data = {
+                "amount": str(cart.final_price),
+                "items_qty": str(cart.total_products),
+                "api_token": settings.PAYMENT_SERVICE_ACCESS_TOKEN,
+                "user_email": user.email
+            }
+            json_data = json.dumps(data)
+            response = requests.post(url, data=json_data)
+            json_data = response.json()
 
-        send_order_info_mail(json_data, user.email)
+            send_order_info_mail(json_data, user.email)
 
-        return Response(json_data)
+            return Response(json_data)
+        except Cart.DoesNotExist:
+            raise APIException('Cart not found.', code='not_found')
+        except Exception as e:
+            raise APIException('An error occurred during processing your request.', code='error')
+
