@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from django.http import JsonResponse
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
@@ -8,11 +9,14 @@ from cart.models import Cart, CartProduct
 from cart.utils import recalc_cart
 from cart.serializers import CartSerializer
 
-from shop.models import Product
+from shop.models import Product, Customer
 
 
 class CartViewSet(CartMixin, ReadOnlyModelViewSet):
-    queryset = Cart.objects.all().prefetch_related('products', 'owner')
+    queryset = Cart.objects.all().prefetch_related(
+        'products',
+        Prefetch('owner', Customer.objects.all().select_related('user').only('user__first_name', 'user__last_name'))
+    )
     serializer_class = CartSerializer
 
 
