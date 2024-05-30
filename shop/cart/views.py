@@ -12,7 +12,7 @@ from shop.models import Product
 
 
 class CartViewSet(CartMixin, ReadOnlyModelViewSet):
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.all().prefetch_related('products', 'owner')
     serializer_class = CartSerializer
 
 

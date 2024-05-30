@@ -14,7 +14,7 @@ services:
       - DB_PASS=pass
 
     env_file:
-      - .env
+      - .env.dev
 
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
